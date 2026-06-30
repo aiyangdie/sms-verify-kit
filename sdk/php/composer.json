@@ -1,0 +1,21 @@
+{
+    "name": "aiyangdie/sms-verify-kit-php",
+    "description": "Aliyun PNVS SMS verification SDK for PHP — login, register, bind phone",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "aiyangdie",
+            "email": "aike1015@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "SmsVerifyKit\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}

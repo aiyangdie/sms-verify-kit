@@ -1,0 +1,11 @@
+config.local.php
+.env
+.env.*
+*.local.php
+vendor/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.vscode/

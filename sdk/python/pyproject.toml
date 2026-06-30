@@ -1,0 +1,20 @@
+[project]
+name = "sms-verify-kit"
+version = "1.0.0"
+description = "Aliyun PNVS SMS verification SDK for Python"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "aiyangdie", email = "aike1015@qq.com" }]
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://smsverify.aike.ink"
+Repository = "https://github.com/aiyangdie/sms-verify-kit"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sms_verify_kit*"]
