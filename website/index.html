@@ -133,6 +133,19 @@
             text-align: center; color: var(--muted); font-size: 0.85rem;
         }
         footer a { color: var(--muted); }
+        .step-num {
+            flex-shrink: 0; width: 1.75rem; height: 1.75rem;
+            border-radius: 50%; background: var(--accent); color: #0b0f17;
+            font-weight: 700; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .steps { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+        .step {
+            display: flex; gap: 1rem; align-items: flex-start;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1rem 1.15rem;
+        }
+        .step p { font-size: 0.88rem; color: var(--muted); margin-top: 0.25rem; }
         @media (max-width: 640px) {
             .nav-links { display: none; }
         }
@@ -143,6 +156,7 @@
     <div class="wrap nav">
         <a class="logo" href="/">Sms<span>Verify</span>Kit</a>
         <nav class="nav-links">
+            <a href="#beginner">新手入门</a>
             <a href="#features">特性</a>
             <a href="#start">快速开始</a>
             <a href="#pricing">费用</a>
@@ -159,13 +173,51 @@
         <h1>让你的用户<br>用上短信验证码登录</h1>
         <p>个人开发者专用。对接阿里云「短信认证」，无需自建签名模板。PHP / Node / Python / Go 直接用，其它语言走 HTTP 网关。</p>
         <div class="hero-actions">
-            <a class="btn btn-primary" href="https://github.com/aiyangdie/sms-verify-kit#readme">查看文档</a>
-            <a class="btn btn-ghost" href="#pricing">费用说明</a>
+            <a class="btn btn-primary" href="#beginner">新手 3 步开始</a>
+            <a class="btn btn-ghost" href="https://github.com/aiyangdie/sms-verify-kit/blob/main/START_HERE.md">START_HERE</a>
         </div>
         <div class="cost-banner">
             <span>本工具包：<strong>完全免费</strong></span>
             <span>短信通道：<span class="paid">阿里云按量付费（约 ¥0.06/条起）</span></span>
         </div>
+    </section>
+
+    <section id="beginner" class="wrap">
+        <h2>新手 3 步上手（复制即可）</h2>
+        <p class="section-desc">不需要懂阿里云签名算法。下载 → 运行配置脚本 → 命令行测一条短信。</p>
+        <div class="steps">
+            <div class="step">
+                <span class="step-num">1</span>
+                <div>
+                    <strong>下载并进入目录</strong>
+                    <pre style="margin-top:0.5rem;padding:0.65rem;background:#0a0e14;border-radius:8px;font-size:0.8rem;overflow-x:auto"><code>git clone https://github.com/aiyangdie/sms-verify-kit.git
+cd sms-verify-kit</code></pre>
+                </div>
+            </div>
+            <div class="step">
+                <span class="step-num">2</span>
+                <div>
+                    <strong>一键配置（输入 AccessKey 和 SignName）</strong>
+                    <pre style="margin-top:0.5rem;padding:0.65rem;background:#0a0e14;border-radius:8px;font-size:0.8rem"><code>bash scripts/setup.sh</code></pre>
+                    <p>SignName 常见为「速通互联验证码」，以<a href="https://dypns.console.aliyun.com/" target="_blank" rel="noopener">阿里云控制台</a>为准。</p>
+                </div>
+            </div>
+            <div class="step">
+                <span class="step-num">3</span>
+                <div>
+                    <strong>测试发码 & 验码</strong>
+                    <pre style="margin-top:0.5rem;padding:0.65rem;background:#0a0e14;border-radius:8px;font-size:0.8rem;overflow-x:auto"><code>php bin/sms-verify.php doctor
+php bin/sms-verify.php send 13800138000 login
+php bin/sms-verify.php verify 13800138000 收到的验证码</code></pre>
+                    <p>测试会真实发短信并扣费（约 ¥0.06/条）。</p>
+                </div>
+            </div>
+        </div>
+        <p style="margin-top:1.25rem;font-size:0.88rem;color:var(--muted)">
+            详细教程：<a href="https://github.com/aiyangdie/sms-verify-kit/blob/main/docs/zh-CN/beginner-5min.md">5 分钟图文</a> ·
+            卡住：<a href="https://github.com/aiyangdie/sms-verify-kit/blob/main/docs/zh-CN/faq.md">FAQ</a> ·
+            Docker：<code style="color:var(--accent)">docker compose up -d</code>
+        </p>
     </section>
 
     <section id="features" class="wrap">
@@ -191,12 +243,8 @@
                 <button data-lang="python">Python</button>
                 <button data-lang="curl">HTTP</button>
             </div>
-            <pre id="code-php"><code>$client = new AliyunPnvsClient([
-    'access_key_id'     => getenv('SMS_ACCESS_KEY_ID'),
-    'access_key_secret' => getenv('SMS_ACCESS_KEY_SECRET'),
-    'sign_name'         => '速通互联验证码',
-]);
-
+            <pre id="code-php"><code># 配置好 .env 后
+$client = AliyunPnvsClient::fromEnv('/path/to/sms-verify-kit');
 $client->send('13800138000', 'login');
 $client->verify('13800138000', '1234');</code></pre>
             <pre id="code-node" hidden><code>const { AliyunPnvsClient } = require('@aiyangdie/sms-verify-kit');
@@ -218,16 +266,16 @@ client = AliyunPnvsClient(
 )
 client.send("13800138000", scene="bind_phone")
 client.verify("13800138000", "1234")</code></pre>
-            <pre id="code-curl" hidden><code># 部署 Gateway 后，任意语言可 HTTP 调用
-curl -X POST https://your-domain/v1/send \
+            <pre id="code-curl" hidden><code># 先启动: php -S 127.0.0.1:8080 -t gateway/public
+curl -X POST http://127.0.0.1:8080/v1/send \
   -H "Content-Type: application/json" \
-  -H "X-Api-Key: your-key" \
   -d '{"phone":"13800138000","scene":"login"}'
 
-curl -X POST https://your-domain/v1/verify \
+curl -X POST http://127.0.0.1:8080/v1/verify \
   -H "Content-Type: application/json" \
-  -H "X-Api-Key: your-key" \
-  -d '{"phone":"13800138000","code":"1234"}'</code></pre>
+  -d '{"phone":"13800138000","code":"1234"}'
+
+# API 说明: http://127.0.0.1:8080/docs</code></pre>
         </div>
         <p style="margin-top:1rem;font-size:0.88rem;color:var(--muted)">
             完整文档：<a href="https://github.com/aiyangdie/sms-verify-kit/tree/main/docs/zh-CN">docs/zh-CN</a>
@@ -269,7 +317,8 @@ curl -X POST https://your-domain/v1/verify \
     <p>SmsVerifyKit · MIT © 2026 <a href="https://github.com/aiyangdie">aiyangdie</a> · aike1015@qq.com</p>
     <p style="margin-top:0.5rem">
         <a href="https://github.com/aiyangdie/sms-verify-kit">GitHub</a> ·
-        <a href="https://github.com/aiyangdie/sms-verify-kit/blob/main/docs/zh-CN/aliyun-setup.md">开通指南</a> ·
+        <a href="https://github.com/aiyangdie/sms-verify-kit/blob/main/docs/zh-CN/faq.md">FAQ</a> ·
+        <a href="https://github.com/aiyangdie/sms-verify-kit/blob/main/docs/zh-CN/beginner-5min.md">新手指南</a> ·
         <a href="https://aike.ink">aike.ink</a>
     </p>
 </footer>

@@ -1,0 +1,12 @@
+services:
+  sms-verify-gateway:
+    image: php:8.2-cli-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    command: php -S 0.0.0.0:8080 -t gateway/public
+    restart: unless-stopped

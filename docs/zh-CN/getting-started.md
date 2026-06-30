@@ -1,5 +1,18 @@
 # 快速开始
 
+> **零基础？请直接看 [新手 5 分钟上手](./beginner-5min.md)**，含复制粘贴命令和 FAQ 链接。
+
+## 最快路径
+
+```bash
+git clone https://github.com/aiyangdie/sms-verify-kit.git
+cd sms-verify-kit
+bash scripts/setup.sh
+php bin/sms-verify.php doctor
+```
+
+---
+
 ## 方式 A：直接用 SDK（推荐）
 
 在服务端安装对应语言 SDK，填入你的阿里云 AccessKey 和 SignName。
@@ -12,15 +25,11 @@ cd sdk/php && composer install
 
 ```php
 <?php
-require 'vendor/autoload.php';
+require 'path/to/sdk/php/src/EnvLoader.php';
+require 'path/to/sdk/php/src/AliyunPnvsClient.php';
 
-use SmsVerifyKit\AliyunPnvsClient;
-
-$client = new AliyunPnvsClient([
-    'access_key_id'     => getenv('SMS_ACCESS_KEY_ID'),
-    'access_key_secret' => getenv('SMS_ACCESS_KEY_SECRET'),
-    'sign_name'         => '速通互联验证码', // 以控制台为准
-]);
+// 新手推荐：自动读 .env
+$client = SmsVerifyKit\AliyunPnvsClient::fromEnv('/path/to/sms-verify-kit');
 
 // 1. 发送
 $send = $client->send('13800138000', 'login');
@@ -83,9 +92,10 @@ client.Verify("13800138000", "1234")
 适合 PHP 以外栈、或不想集成 SDK 的团队。
 
 ```bash
-cp gateway/config.example.php gateway/config.local.php
-# 编辑 config.local.php 填入密钥
-# Web 根目录指向 gateway/public
+bash scripts/setup.sh
+# 或手动：cp gateway/config.example.php gateway/config.local.php
+php -S 127.0.0.1:8080 -t gateway/public
+# 浏览器打开 http://127.0.0.1:8080/docs
 ```
 
 ```bash

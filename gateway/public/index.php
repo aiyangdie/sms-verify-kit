@@ -3,20 +3,27 @@ declare(strict_types=1);
 
 /**
  * SmsVerifyKit HTTP Gateway
- * 任意语言通过 REST 调用短信验证，无需自己实现阿里云签名。
  *
  * POST /v1/send   { "phone": "13800138000", "scene": "login" }
  * POST /v1/verify { "phone": "13800138000", "code": "1234" }
+ * GET  /          服务状态
+ * GET  /docs      新手 API 说明（HTML）
  */
 
-require dirname(__DIR__) . '/sdk/php/src/AliyunPnvsClient.php';
+$repoRoot = dirname(__DIR__, 2);
+require $repoRoot . '/sdk/php/src/AliyunPnvsClient.php';
+require $repoRoot . '/gateway/bootstrap.php';
 
-$configFile = __DIR__ . '/../config.local.php';
-if (!is_file($configFile)) {
-    $configFile = __DIR__ . '/../config.example.php';
-}
 /** @var array<string, mixed> $cfg */
-$cfg = require $configFile;
+$cfg = smsverifykit_load_config($repoRoot);
+
+$path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+if ($path === '/docs') {
+    header('Content-Type: text/html; charset=UTF-8');
+    readfile(__DIR__ . '/docs.html');
+    exit;
+}
 
 header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Origin: *');
@@ -57,19 +64,26 @@ function requireAuth(array $cfg): void
     }
 }
 
-$path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-
 if ($path === '/' || $path === '/health') {
+    $configured = trim((string) ($cfg['access_key_id'] ?? '')) !== ''
+        && trim((string) ($cfg['access_key_secret'] ?? '')) !== ''
+        && trim((string) ($cfg['sign_name'] ?? '')) !== '';
     jsonOut([
-        'ok'      => true,
-        'service' => 'SmsVerifyKit Gateway',
-        'version' => '1.0.0',
-        'docs'    => 'https://smsverify.aike.ink',
+        'ok'          => true,
+        'service'     => 'SmsVerifyKit Gateway',
+        'version'     => '1.1.0',
+        'configured'  => $configured,
+        'docs'        => 'https://smsverify.aike.ink',
+        'api_docs'    => '/docs',
+        'endpoints'   => [
+            'POST /v1/send'   => ['phone' => '13800138000', 'scene' => 'login'],
+            'POST /v1/verify' => ['phone' => '13800138000', 'code' => '1234'],
+        ],
     ]);
 }
 
 if (!str_starts_with($path, '/v1/')) {
-    jsonOut(['ok' => false, 'message' => 'Not found'], 404);
+    jsonOut(['ok' => false, 'message' => 'Not found. 查看 GET /docs'], 404);
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -81,7 +95,11 @@ requireAuth($cfg);
 if (trim((string) ($cfg['access_key_id'] ?? '')) === ''
     || trim((string) ($cfg['access_key_secret'] ?? '')) === ''
     || trim((string) ($cfg['sign_name'] ?? '')) === '') {
-    jsonOut(['ok' => false, 'message' => 'Gateway 未配置 AccessKey / SignName'], 503);
+    jsonOut([
+        'ok'      => false,
+        'message' => 'Gateway 未配置。请运行 bash scripts/setup.sh 或填写 .env',
+        'help'    => 'https://github.com/aiyangdie/sms-verify-kit/blob/main/docs/zh-CN/beginner-5min.md',
+    ], 503);
 }
 
 $client = new SmsVerifyKit\AliyunPnvsClient([

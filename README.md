@@ -1,38 +1,27 @@
 # SmsVerifyKit
 
-**开源短信验证码工具包** — 让个人开发者 10 分钟接入手机号登录 / 注册 / 绑手机。
+**开源短信验证码工具包** — 让个人开发者 5 分钟接入手机号登录 / 注册 / 绑手机。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Website](https://img.shields.io/badge/docs-smsverify.aike.ink-green)](https://smsverify.aike.ink)
 [![GitHub](https://img.shields.io/github/stars/aiyangdie/sms-verify-kit?style=social)](https://github.com/aiyangdie/sms-verify-kit)
 
-> 代码免费 · 短信走阿里云（按量付费）· 多语言 SDK · 可选 HTTP 网关
-
-[中文文档](docs/zh-CN/getting-started.md) · [官网](https://smsverify.aike.ink) · [费用说明](docs/zh-CN/pricing.md) · [产品规则](docs/zh-CN/rules.md)
+> 代码免费 · 短信走阿里云（按量付费）· 多语言 SDK · 一键配置脚本
 
 ---
 
-## 为什么做这个项目？
+## 🚀 新手？从这里开始
 
-很多个人开发者想做「手机号验证码登录」，却被这些问题挡住：
+```bash
+git clone https://github.com/aiyangdie/sms-verify-kit.git
+cd sms-verify-kit
+bash scripts/setup.sh          # 交互式填 AccessKey
+php bin/sms-verify.php doctor  # 检查配置
+php bin/sms-verify.php send 13800138000 login   # 测试发码
+```
 
-- 传统短信要申请签名、模板，周期长
-- 各语言对接阿里云签名算法麻烦
-- 不清楚**到底花多少钱**
-- 网上示例代码零散、不可生产
-
-**SmsVerifyKit** 解决的是：**开通阿里云短信认证 → 填配置 → 调 SDK**，其余文档讲清楚。
-
----
-
-## 特性
-
-- **多语言 SDK**：PHP · Node.js · Python · Go（同一套 API 设计）
-- **HTTP Gateway**：Java / Rust / C# 等任意语言 `curl` 即用
-- **场景预设**：`login` · `register` · `bind_phone` · `change_phone` · `reset_password`
-- **系统模板**：无需自建签名模板（阿里云开通即用）
-- **全配置化**：AccessKey、SignName、模板 CODE 均可改
-- **MIT 开源**：可商用
+📖 **完整图文教程：[START_HERE.md](START_HERE.md) → [5 分钟上手](docs/zh-CN/beginner-5min.md)**  
+❓ **卡住？[常见问题 FAQ](docs/zh-CN/faq.md)**
 
 ---
 
@@ -40,42 +29,44 @@
 
 | 项目 | 费用 |
 |------|------|
-| SmsVerifyKit | **免费** |
-| 阿里云短信认证 | **约 ¥0.06/条起**（按量，见 [pricing.md](docs/zh-CN/pricing.md)） |
+| SmsVerifyKit | **免费（MIT）** |
+| 阿里云短信认证 | **约 ¥0.06/条起**（[说明](docs/zh-CN/pricing.md)） |
 
 ---
 
-## 快速开始
+## 三种用法（选一种即可）
+
+| 方式 | 适合谁 | 命令/代码 |
+|------|--------|-----------|
+| **CLI 测试** | 第一次验证配置 | `php bin/sms-verify.php send ...` |
+| **PHP SDK** | PHP 项目 | `AliyunPnvsClient::fromEnv()` |
+| **HTTP 网关** | Java/C#/任意语言 | `php -S :8080 -t gateway/public` 或 `docker compose up` |
+
+### PHP 接入（3 行）
 
 ```php
-use SmsVerifyKit\AliyunPnvsClient;
-
-$client = new AliyunPnvsClient([
-    'access_key_id'     => 'LTAI...',
-    'access_key_secret' => '...',
-    'sign_name'         => '速通互联验证码',
-]);
-
+$client = SmsVerifyKit\AliyunPnvsClient::fromEnv('/path/to/sms-verify-kit');
 $client->send('13800138000', 'login');
 $client->verify('13800138000', '1234');
 ```
 
-详见 [getting-started.md](docs/zh-CN/getting-started.md)
+### HTTP 网关
+
+```bash
+curl -X POST http://127.0.0.1:8080/v1/send \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"13800138000","scene":"login"}'
+```
 
 ---
 
-## 仓库结构
+## 特性
 
-```
-sms-verify-kit/
-├── sdk/php/          # PHP SDK
-├── sdk/node/         # Node.js SDK
-├── sdk/python/       # Python SDK
-├── sdk/go/           # Go SDK
-├── gateway/          # 自托管 REST 网关
-├── docs/zh-CN/       # 中文文档
-└── website/          # 官网静态页
-```
+- **一键配置** `scripts/setup.sh` + `.env` + `bin/sms-verify.php` 诊断
+- **多语言 SDK**：PHP · Node.js · Python · Go
+- **Docker 一键启动** Gateway
+- **场景预设**：login / register / bind_phone / change_phone / reset_password
+- **系统模板**：开通阿里云短信认证即用，无需自建签名
 
 ---
 
@@ -83,26 +74,33 @@ sms-verify-kit/
 
 | 文档 | 说明 |
 |------|------|
-| [getting-started.md](docs/zh-CN/getting-started.md) | 快速开始 |
+| [START_HERE.md](START_HERE.md) | **新手入口** |
+| [beginner-5min.md](docs/zh-CN/beginner-5min.md) | 5 分钟逐步教程 |
+| [faq.md](docs/zh-CN/faq.md) | 常见问题 |
 | [aliyun-setup.md](docs/zh-CN/aliyun-setup.md) | 阿里云开通 |
 | [pricing.md](docs/zh-CN/pricing.md) | 费用说明 |
-| [rules.md](docs/zh-CN/rules.md) | 产品规则 |
-| [scenes.md](docs/zh-CN/scenes.md) | 业务场景 |
+| [examples/](examples/) | 各语言示例 |
 
 ---
 
-## 贡献
+## 仓库结构
 
-Issue / PR 欢迎。请**不要**在 PR 中包含 AccessKey 或真实用户手机号。
+```
+sms-verify-kit/
+├── START_HERE.md       ← 新手先看
+├── .env.example        ← 配置模板
+├── bin/sms-verify.php  ← CLI 测试工具
+├── scripts/setup.sh    ← 一键配置向导
+├── sdk/                ← 多语言 SDK
+├── gateway/            ← HTTP 网关
+├── examples/           ← 可复制示例
+└── docs/zh-CN/         ← 中文文档
+```
 
 ---
 
 ## 作者
 
-**aiyangdie** · aike1015@qq.com
-
----
-
-## License
+**aiyangdie** · aike1015@qq.com · [smsverify.aike.ink](https://smsverify.aike.ink)
 
 MIT © 2026 aiyangdie

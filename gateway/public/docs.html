@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmsVerifyKit Gateway API</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.6;color:#1e293b}
+code,pre{background:#f1f5f9;padding:.15rem .4rem;border-radius:4px;font-size:.9em}
+pre{padding:1rem;overflow-x:auto}
+h1{font-size:1.4rem} h2{font-size:1.1rem;margin-top:1.5rem}
+.note{background:#eff6ff;border:1px solid #bfdbfe;padding:.75rem;border-radius:8px;font-size:.9rem}
+</style>
+</head>
+<body>
+<h1>SmsVerifyKit Gateway — API 说明</h1>
+<p class="note">Gateway 是 HTTP 接口，<strong>任意编程语言</strong>都能调用。密钥在服务端 .env，前端只调你自己的业务 API。</p>
+
+<h2>1. 检查服务</h2>
+<pre>GET /health</pre>
+
+<h2>2. 发送验证码</h2>
+<pre>POST /v1/send
+Content-Type: application/json
+
+{"phone":"13800138000","scene":"login"}</pre>
+<p>scene 可选：<code>login</code> <code>register</code> <code>bind_phone</code> <code>change_phone</code> <code>reset_password</code></p>
+
+<h2>3. 校验验证码</h2>
+<pre>POST /v1/verify
+Content-Type: application/json
+
+{"phone":"13800138000","code":"1234"}</pre>
+
+<h2>4. 若设置了 SMS_GATEWAY_API_KEY</h2>
+<pre>Header: X-Api-Key: 你的密钥</pre>
+
+<h2>返回格式</h2>
+<pre>{"ok":true,"message":"验证码已发送"}
+{"ok":true,"message":"验证成功","pass":true}</pre>
+
+<p><a href="https://smsverify.aike.ink">官网</a> · <a href="https://github.com/aiyangdie/sms-verify-kit">GitHub</a></p>
+</body>
+</html>

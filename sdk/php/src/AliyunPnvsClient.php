@@ -47,6 +47,13 @@ final class AliyunPnvsClient
         ], $config);
     }
 
+    /** 从 .env / 环境变量创建客户端（新手推荐） */
+    public static function fromEnv(?string $envDir = null): self
+    {
+        EnvLoader::loadProjectEnv($envDir);
+        return new self(EnvLoader::clientConfig());
+    }
+
     /**
      * @return array{ok:bool, message:string, biz_id?:string, code?:string}
      */
